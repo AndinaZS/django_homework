@@ -54,7 +54,7 @@ Content-Type: application/json
       "price": 120.50
     },
     {
-      "product": 3,
+      "product": 1,
       "quantity": 100,
       "price": 180
     }
