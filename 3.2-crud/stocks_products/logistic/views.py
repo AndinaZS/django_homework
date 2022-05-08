@@ -8,17 +8,14 @@ from logistic.serializers import ProductSerializer, StockSerializer
 class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-
-    def get_queryset(self):
-        title = self.request.GET.get('title', '')
-        description = self.request.GET.get('description', '')
-        queryset = Product.objects.all().filter(title__icontains=title, description__icontains=description)
-        return queryset.order_by('id')
+    search_fields = ['title', 'description']
 
 
 class StockViewSet(ModelViewSet):
     queryset = Stock.objects.all().prefetch_related('positions').prefetch_related('products').order_by('id')
     serializer_class = StockSerializer
-    search_fields = ['positions__product__title']
-    filter_fields = ['positions__product__id']
 
+    def get_queryset(self):
+        product = self.request.GET.get('product', '')
+        queryset = Stock.objects.all().filter(positions__product__title__icontains=product)
+        return queryset.order_by('id')
