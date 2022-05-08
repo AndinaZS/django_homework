@@ -42,13 +42,18 @@ class StockSerializer(serializers.ModelSerializer):
 
         stock = super().update(instance, validated_data)
 
-        # для варианта с очисткой списка продуктов склада
-        # StockProduct.objects.filter(stock_id=stock.id).delete()
-
         for position in positions:
-            StockProduct.objects.update_or_create(product=position['product'],
-                                                  quantity=position['quantity'],
-                                                  price=position['price'],
-                                                  stock_id=stock.id)
+            product = StockProduct.objects.all().filter(stock_id=stock.id, product=position['product'])
+            if product:
+                if position['quantity'] == 0:
+                    product.delete()
+                else:
+                    product.update(quantity=position['quantity'],
+                                    price=position['price'])
+            else:
+                StockProduct.objects.create(product=position['product'],
+                                            quantity=position['quantity'],
+                                            price=position['price'],
+                                            stock_id=stock.id)
 
         return stock

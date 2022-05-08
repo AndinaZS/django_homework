@@ -12,10 +12,13 @@ class ProductViewSet(ModelViewSet):
 
 
 class StockViewSet(ModelViewSet):
-    queryset = Stock.objects.all().prefetch_related('positions').prefetch_related('products').order_by('id')
+    queryset = Stock.objects.all()
     serializer_class = StockSerializer
 
     def get_queryset(self):
         product = self.request.GET.get('product', '')
-        queryset = Stock.objects.all().filter(positions__product__title__icontains=product)
+        if product:
+            queryset = Stock.objects.filter(positions__product__title__icontains=product)
+        else:
+            queryset = Stock.objects.all()
         return queryset.order_by('id')
